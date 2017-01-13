@@ -6,7 +6,7 @@
 
 var Amnhh = require('./core');
 
-require('./fn');
+require('./util');
 
 
 module.exports = Amnhh;
