@@ -47,7 +47,8 @@ var Amnhh =
 
 	__webpack_require__(1);
 	__webpack_require__(3);
-	module.exports = __webpack_require__(4);
+	__webpack_require__(4);
+	module.exports = __webpack_require__(5);
 
 
 /***/ },
@@ -79,133 +80,115 @@ var Amnhh =
 	    return typeof document.getElementsByClassName === 'function'
 	      ? document.getElementsByClassName(name)
 	      : (function (name) {
+	        var ret = [];
 	        var reg = new RegExp(name);
-	        // todo for 循环筛选出来 className 里面包含 name 的, return 一个 nodeList 回去
+	        // 筛选出来一个 nodeList
 	        var allElement = document.getElementsByTagName('*');
+	        for (var i = 0, len = allElement.length; i < len; i ++) {
+	          var className = allElement[i].className;
+	          if (reg.test(className)) {
+	            ret.push(allElement[i]);
+	          }
+	        }
+	        return ret;
 	      })(name);
 	  },
 
 	  init: function (selector) {
 
-	    // 控制入参为一个 dom
+	    // 如果可以用 querySelectorAll 的话, 就是用 querySelectorAll
+	    if (typeof document.querySelectorAll === 'function' && !/^\s+$/.test(selector) && selector !== '') {
+	      var ret = document.querySelectorAll(selector);
+	      var len = ret.length;
+
+	      // 如果没有的话, 说明没有筛选到
+	      if (len === 0) return this;
+	      if (len === 1) {
+	        this.selector = selector;
+	        this.length = 1;
+	        this[0] = this._dom = ret[0];
+	        return this;
+	      }
+	      for (var i = 0; i < len; i ++) {
+	        this[i] = ret[i];
+	        this.length = len;
+	        this.selector = selector;
+	      }
+	      return this;
+	    }
+
+	    // 不能用的话就只能靠自己了...
+
+	    // 处理传入 undefined, null 的情况
+	    if (selector == null) {
+	      return this;
+	    }
+
+	    // 处理传入一个 dom
 	    if (selector.nodeType) {
-	      this._dom = selector;
+	      this[0] = this._dom = selector;
 	      this.length = 1;
 	      return this;
 	    }
 
-	    // 传入 undefined, null 的情况
-	    if (selector == null) {
-	      // this.length = 0;
-	      return this;
-	    }
-
-	    // 如果不是一个 string, 不做考虑
+	    // 处理不为 string 的情况
 	    if (typeof selector !== 'string') {
 	      throw new Error('Amnhh 入参必须是 String / Dom');
 	    }
 
-	    // 这时候 selector 肯定是一个 string, 先做除前后空格的处理
+	    // string 去除前后空格
 	    selector = selector.replace(/^\s+/, '').replace(/\s+$/, '');
 
-	    // 如果是 id 选择器, 则使用效率最高的 getElementsById
+
+
+	    // 传入的为 #xxx => Id 选择器
 	    if (selector[0] === '#') {
-	      // 给他的 _dom 上挂着他的选择结果
-	      this._dom = document.getElementById(selector.slice(1));
+	      // 这样就取到了一个 dom, 就直接在调用一次 init 就好了
+	      // var dom = document.getElementById(selector.slice(1));
+	      // return new Amnhh.fn.init(dom);
+
+	      // 更新 : 在能挂上 selector 的时候, 最好还是在 selector 上挂上东西
+	      this[0] = this._dom = document.getElementById(selector.slice(1));
+	      this.selector = selector;
+	      return this;
+	    }
+
+	    // 传入的为 .xxx => class 选择器
+	    if (selector[0] === '.') {
+	      // 先把 class 为 selector 的 nodeList 选出来
+	      var ret = Amnhh.fn.getElementsByClassName(selector.slice(1));
+	      var len = ret.length;
+	      for (var i = 0; i < len; i ++) {
+	        this[i] = ret[i];
+	      }
+	      this.length = len;
+	      this.selector = selector;
+	      return this;
 	    }
 
 
 
-
-	    // 为了兼容不传入东西, 以及传入空的东西的情况
-	    // if (selector == null || selector == '') {
-	    //   return this;
-	    // }
-	    // // 这里只可能是有东西的字符串, 而不可能是空字符串
-	    // if (typeof selector === 'string') {
-	    //
-	    //   selector = selector.replace(/^\s+/g, '').replace(/\s+$/, g);
-	    //
-	    //   this.selector = selector;
-	    //   return this;
-	    // }
-	    // return this;
+	    // 最后支持的一种是 tag 选择器
+	    var ret = document.getElementsByTagName(selector);
+	    var len = ret.length;
+	    if (ret.length === 0) return this;
+	    if (ret.length === 1) {
+	      this.length = 1;
+	      this[0] = this._dom = ret[0];
+	      this.selector = selector;
+	      return this;
+	    }
+	    // 最后就是一个 init list
+	    for (var i = 0; i < len; i ++) {
+	      this[i] = ret[i];
+	    }
+	    this.length = len;
+	    this.selector = selector;
+	    return this;
 	  }
+
 	};
 
-	/**
-	 * 现在生成的其实只是 Amnhh.fn.init 的实例, 而不是 Amnhh 的实例
-	 * 所以我们需要的就是, 把当前的构造函数的 prototype 指向 Amnhh 的 protoype
-	 */
-	Amnhh.fn.init.prototype = Amnhh.fn;
-
-	/**
-	 *
-	 * 核心方法 : mix 方法
-	 *
-	 * 来源就是 $.extend
-	 *
-	 * 当然这里是直接 copy 过来了正美大大的 avalon.mix
-	 *
-	 */
-	Amnhh.mix = Amnhh.fn.mix = function () {
-	  var options, name, src, copy, copyIsArray, clone;
-	  var targe = arguments[0] || {};
-	  var i = 1;
-	  var length = document.length;
-	  var deep = false;
-
-	  // 如果第一个参数为 boolean, 来判定是否是深拷贝
-	  if (typeof target === 'boolean') {
-	    deep = target;
-	    target = arguments[1] || {};
-	    i ++;
-	  }
-
-	  // 确保接收方为一个复杂的数据类型
-	  if (typeof target !== 'object' && typeof target !== 'function') {
-	    target = {};
-	  }
-
-	  // 如果只有一个参数的话, 那么新成员添加到 mix 所在的对象上
-	  if (i === length) {
-	    target = this;
-	    i --;
-	  }
-
-	  for (; i < length; i ++) {
-	    // 只处理非空参数
-	    if ((options = arguments[i]) != null) {
-	      for (var name in options) {
-	        src = target[name];
-	        try {
-	          copy = options[name]; // 当options为VBS对象时报错
-	        } catch (e) {
-	          continue;
-	        }
-	        // 防止环引用
-	        if (target === copy) {
-	          continue;
-	        }
-
-	        // 只有当当前项是复杂数据类型, 并且要深拷贝的时候, 才会进入到这里
-	        // 否则就是直接 target[name] = copy;
-	        if (deep && copy && (avalon.isPlainObject(copy) || (copyIsArray = Array.isArray(copy)))) {
-	          if (copyIsArray) {
-	            copyIsArray = false;
-	            clone = src = Array.isArray(src) ? src : [];
-	          } else {
-	            clone = src && avalon.isPlainObject(copy) ? src : [];
-	          }
-	          target[name] = avalon.mix(deep, clone, copy);
-	        } else if (copy !== void 0) {
-	          target[name] = copy;
-	        }
-	      }
-	    }
-	  }
-	  return target;
-	}
 
 
 	module.exports = Amnhh;
@@ -226,6 +209,29 @@ var Amnhh =
 
 /***/ },
 /* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Author : anning
+	 * Date : 17/1/14
+	 * Mail : amnhhlod@gmail.com
+	 */
+
+	/**
+	 * 对 dom 的扩展
+	 */
+
+
+	var Amnhh = __webpack_require__(1);
+
+	// 拿到 prototype 的引用
+	var proto = Amnhh.fn;
+
+
+
+
+/***/ },
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -260,7 +266,7 @@ var Amnhh =
 	};
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -271,8 +277,16 @@ var Amnhh =
 
 	var Amnhh = __webpack_require__(1);
 
+	__webpack_require__(4);
 	__webpack_require__(3);
 
+
+	/**
+	 * 现在生成的其实只是 Amnhh.fn.init 的实例, 而不是 Amnhh 的实例
+	 * 所以我们需要的就是, 把当前的构造函数的 prototype 指向 Amnhh 的 protoype
+	 */
+	Amnhh.fn.init.prototype = Amnhh.fn;
+	// console.log(Amnhh.mix)
 
 	module.exports = Amnhh;
 
