@@ -11,7 +11,13 @@ var webpack = require('webpack');
 module.exports = {
 
   entry : {
-    Amnhh : ['./../src/core', './../src/dom', './../src/util', './../src/amnhh']
+    Amnhh : [
+      './../src/core',
+      './../src/dom',
+      './../src/util',
+      './../src/array',
+      './../src/object',
+      './../src/amnhh']
   },
 
   output : {

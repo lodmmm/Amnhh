@@ -8,6 +8,8 @@ var Amnhh = require('./core');
 
 require('./util');
 require('./dom');
+require('./array');
+require('./object');
 
 
 /**

@@ -11,7 +11,8 @@ end : undefined
 
 ## 预计完成的功能 : 
 
-- 自己尝试写一次选择器
+- 内核 `core` 的实现   `√` => 只实现了 `Amnhh` 的构造函数和 `Amnhh.fn` 的定义
+- 自己尝试写一次选择器   `√` => 虽然很简单, 大部分通过 `querySelectorAll`, 小部分自己处理的 `id`, `class`, `tag` 的匹配, 但还是写出来了...
 - 常规的 `dom` 操作的封装
 - 对 `array`, `string`, `obj` 的扩展方法
 - 对 `ajax` 的封装
@@ -23,7 +24,7 @@ end : undefined
 - 对 `events` 的封装
 - 对 `browser` 的嗅探的封装
 - 对 `callback` 的封装
-- 对 `util` 的封装
+- 对 `util` 的封装 
 - 常见 `filter` 的封装
 - 添加中间件的封装
 

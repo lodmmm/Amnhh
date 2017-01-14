@@ -5,26 +5,50 @@
  */
 
 var Amnhh = require('./core');
+require('./array');
+var proto = Amnhh.fn;
 
-Amnhh.fn.util = {};
+// 初始化 uitl
+proto.util = {};
+var protoUtil = Amnhh.fn.util;
 
-var util = Amnhh.fn.util;
+var constant = require('./constant');
 
+protoUtil.isObject = function (obj) {
+  return Object.prototype.toString.call(obj) === '[object Object]';
+};
+
+
+protoUtil.class2type = {};
+
+protoUtil.toString = Object.prototype.toString;
 
 /**
- * 获取相应的属性
- * 属于函数式编程
- *
- * @param key
- * @returns {Function}
- *
- * @example
- *  底下的 getLength 方法定义的时候以传参的形式调用 property 来进行定义
- *  可以结合其参数理解
+ * 对 isError, isArguments... 之类的定义
  */
+proto.array.each(['Arguments', 'Function', 'Object', 'String', 'Number', 'Date', 'RegExp', 'Error', 'Undefined', 'Null', 'Window', 'Boolean'], function (type) {
 
-util.property = function (key) {
-  return function (obj) {
-    return obj != null && obj[key];
+  /** 对 class2type 扩展
+   *
+   * @type {string}
+   *
+   * @example
+   *   class2type['[object Object]'] = 'object'
+   */
+  protoUtil.class2type['[object ' + type + ']'] = type.toLowerCase();
+  proto.array['is' + type] = function (val) {
+    return protoUtil.toString.call(val) === '[object ' + type + ']';
   };
+});
+
+
+protoUtil.type = function (val) {
+  return (typeof val === 'function' || typeof val === 'object')
+    ? protoUtil.class2type[protoUtil.toString.call(val)] : typeof val;
 };
+
+
+
+
+
+
