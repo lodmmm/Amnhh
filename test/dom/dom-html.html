@@ -5,11 +5,12 @@
   <title>Title</title>
 </head>
 <body>
-<div id="myDiv" value="test-value" class="again amnhh mamamin"></div>
+<div id="myDiv" value="test-value" class="again amnhh mamamin">
+  <a href="javascript:void(0)" id="a-link">123</a>
+</div>
 <script src="./../../dist/Amnhh.js"></script>
 <script>
-  var $myDiv = document.getElementById('myDiv')
-  console.log(Amnhh('#myDiv').getValue());
+  Amnhh('#myDiv').innerHTML = '1';
 </script>
 </body>
 </html>
