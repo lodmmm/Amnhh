@@ -20,7 +20,7 @@ var constant = require('./constant').promise;
 
 
 // 如果原生支持 promise 的话, 就直接用原生的 promise
-if (typeof Promise !== 'undefined' && false/*单纯为了走 else, 写完会移除*/) {
+if (typeof Promise !== 'undefined') {
   proto.Promise = Promise;
 } else {
 
