@@ -18,6 +18,7 @@ module.exports = {
       './../src/array',
       './../src/object',
       './../src/json',
+      './../src/promise',
       './../src/amnhh']
   },
 

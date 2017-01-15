@@ -11,6 +11,7 @@ require('./dom');
 require('./array');
 require('./object');
 require('./json');
+require('./promise');
 
 
 /**
