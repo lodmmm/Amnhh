@@ -10,6 +10,7 @@ require('./util');
 require('./dom');
 require('./array');
 require('./object');
+require('./json');
 
 
 /**

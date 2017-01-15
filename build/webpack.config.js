@@ -17,6 +17,7 @@ module.exports = {
       './../src/util',
       './../src/array',
       './../src/object',
+      './../src/json',
       './../src/amnhh']
   },
 
