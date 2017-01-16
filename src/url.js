@@ -24,6 +24,7 @@ protoUrl.getSearchParams = function () {
     : (function () {
       var ret = [];
       var paramList = params.split('&');
+      // map 着赋值
       paramList.map(function (val, idx) {
         val = val.split('=');
         ret[idx] = [val[0], val[1]];
@@ -39,10 +40,13 @@ protoUrl.getSearchParams = function () {
  * @return {String} name 对应的 value 的值
  */
 protoUrl.getParamValue = function (name) {
+  // 获取参数列表
   var paramsArr = protoUrl.getSearchParams();
   var ret;
+  // 找到就给 ret 赋值
   paramsArr.some(function (val) {
     return val[0] === name && (ret = val[1])
   });
+  // 最后返回 ret
   return ret || '';
 };
