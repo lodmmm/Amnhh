@@ -19,7 +19,7 @@ end : undefined
 - 对 `ajax` 的封装
 - 对 `json` 的封装   `√` => 主要对 `JSON.stringify` 的两个参数进行了封装, 没有过多的去对 `parse` 函数进行封装, 后续会做配置项, 也就是传入 `options` 来做处理的兼容
 - 加入一些类似二分查找、桶排序、冒泡排序之类的算法
-- `promise` 的兼容版实现
+- `promise` 的兼容版实现    `√` => 原生支持的话会使用原生的 `Promise`, 不支持的话会使用自己定义的 `Promise`
 - 对 `data` 操作的封装
 - 对 `format` 的封装
 - 对 `events` 的封装
