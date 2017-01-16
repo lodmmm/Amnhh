@@ -518,7 +518,7 @@ var Amnhh =
 	 *
 	 * @member Amnhh.fn.array
 	 *
-	 * @param arr
+	 * @param {Array, Object} arr 可以是类数组对象, 可以是对象, 可以是数组
 	 * @param func
 	 */
 	protoArr.each = protoArr.forEach = function (arr, func) {
@@ -533,7 +533,72 @@ var Amnhh =
 	      func(arr[key], key, arr);
 	    }
 	  }
+	}
+
+
+	/**
+	 * 对 every 方法的封装
+	 * arr 的每一项执行 func, 结果都为 true 的话, 总体表达式返回 true， 否则返回 false
+	 *
+	 * @param {Array, Object} arr 待处理的集合, 可以是 Array/Object
+	 * @param {Function} func 执行函数
+	 * @type {proto.array.forEach}
+	 *
+	 * @return {Boolean}
+	 */
+	protoArr.every = function (arr, func) {
+	  // 复杂实现
+	  // if (protoArr.isArrayLike(arr)) {
+	  //   for (var i = 0, len = protoArr.getLength(arr); i < len; i ++) {
+	  //     if (!func(arr[i], i, arr)) return false;
+	  //   }
+	  //   return true;
+	  // } else {
+	  //   var keys = proto.object.keys(arr);
+	  //   for (var i = 0, len = protoArr.getLength(keys); i < len; i ++) {
+	  //     var key = keys[i];
+	  //     if (!func(arr[key], key, arr)) return false;
+	  //   }
+	  //   return true;
+	  // }
+
+	  // 简写一下
+	  var keys = protoArr.isArrayLike(arr) ? arr : proto.object.keys(arr);
+	  var len = (keys || arr).length;
+	  for (var i = 0; i < len; i ++) {
+	    var key = keys ? keys[i] : i;
+	    if (!func(arr[key], key, arr)) return false;
+	  }
+	  return true;
 	};
+
+
+	protoArr.some = function (arr, func) {
+	  // if (protoArr.isArrayLike(arr)) {
+	  //   for (var i = 0, len = protoArr.getLength(arr); i < len; i ++) {
+	  //     if (func(arr[i], i, arr)) return true;
+	  //   }
+	  //   return false;
+	  // } else {
+	  //   var keys = proto.object.keys(arr);
+	  //   for (var i = 0, len = protoArr.getLength(keys); i < len; i ++) {
+	  //     var key = keys[i];
+	  //     if (func(arr[key], key, arr)) return true;
+	  //   }
+	  //   return false;
+	  // }
+
+	  // 这里也同样简写一下
+	  var keys = protoArr.isArrayLike(arr) ? arr : proto.object.keys(arr);
+	  var len = (keys || arr).length;
+	  for (var i = 0; i < len; i ++) {
+	    var key = keys ? keys[i] : i;
+	    if (func(arr[key], key, arr)) return true;
+	  }
+	  return false;
+	};
+
+
 
 /***/ },
 /* 6 */
