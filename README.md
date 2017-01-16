@@ -2,6 +2,8 @@
 
 Javascript Library for learning
 
+之前由于 git config global username 错了... 一直提交不起, 就另注册了一个号, 后面查阅了一些解决方法又可以重新提交成功了, 所以自己尝试着写的类库 `Amnhh` 会在 `amnhh` 账号上继续提交 :) 
+
 
 ## 时间 
 
