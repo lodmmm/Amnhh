@@ -40,6 +40,22 @@ proto.attr = function (name, value) {
   }
 };
 
+proto.removeAttr = function (name) {
+  if (protoUtil.type(name) !== 'string') {
+    throw new TypeError('需要类型为 string');
+  }
+  if (/^\s+$/.test(name) || name === '') {
+    throw new TypeError('name 为非空字符串');
+  }
+
+  try {
+    this[0].removeAttribute(name);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
+
 
 /**
  * 获取 value 属性

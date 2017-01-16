@@ -51,7 +51,9 @@ var Amnhh =
 	__webpack_require__(5);
 	__webpack_require__(6);
 	__webpack_require__(7);
-	module.exports = __webpack_require__(8);
+	__webpack_require__(8);
+	__webpack_require__(9);
+	module.exports = __webpack_require__(10);
 
 
 /***/ },
@@ -262,6 +264,22 @@ var Amnhh =
 	  }
 	};
 
+	proto.removeAttr = function (name) {
+	  if (protoUtil.type(name) !== 'string') {
+	    throw new TypeError('需要类型为 string');
+	  }
+	  if (/^\s+$/.test(name) || name === '') {
+	    throw new TypeError('name 为非空字符串');
+	  }
+
+	  try {
+	    this[0].removeAttribute(name);
+	    return true;
+	  } catch (e) {
+	    return false;
+	  }
+	};
+
 
 	/**
 	 * 获取 value 属性
@@ -414,7 +432,7 @@ var Amnhh =
 	/**
 	 * 对 isError, isArguments... 之类的定义
 	 */
-	proto.array.each(['Arguments', 'Function', 'Object', 'String', 'Number', 'Date', 'RegExp', 'Error', 'Undefined', 'Null', 'Window', 'Boolean'], function (type) {
+	proto.array.each(['Arguments', 'Function', 'Object', 'String', 'Number', 'Date', 'RegExp', 'Error', 'Undefined', 'Null', 'Boolean', 'Array'], function (type) {
 
 	  /** 对 class2type 扩展
 	   *
@@ -424,17 +442,48 @@ var Amnhh =
 	   *   class2type['[object Object]'] = 'object'
 	   */
 	  protoUtil.class2type['[object ' + type + ']'] = type.toLowerCase();
-	  proto.array['is' + type] = function (val) {
+	  proto.util['is' + type] = function (val) {
 	    return protoUtil.toString.call(val) === '[object ' + type + ']';
 	  };
 	});
 
+	/**
+	 * 判断是不是 NaN
+	 *
+	 * @member Amnhh.fn.util
+	 *
+	 * @param {Mixed} val 检测的值
+	 * @returns {Boolean} 返回是否是 NaN
+	 *
+	 * 主要思路就是使用 Number.isNaN 进行检测, 再加上 NaN 是唯一一个不等于自身的东西这一条特性的判断
+	 */
+	proto.util.isNaN = function (val) {
+	  return Number.isNaN(val) && val !== val;
+	};
 
+	/**
+	 * 检测是不是 window
+	 *
+	 * @param {Mixed} val 待检测的值
+	 * @return {Boolean} 返回是否是 window
+	 */
+	proto.util.isWindow = function (val) {
+	  return val != null && val.window === val;
+	  // fuck ie, support ie 8+
+	  // reutrn val != null && val.window === val && protoUtil.toString.call(val) === '[object Window]';
+	  // 多加的那个条件, 是为了兼容这中, var a = {}; a.window = a; => 不加最后那个条件的话, 会返回 true
+	};
+
+
+	/**
+	 * 检测入参的类型
+	 * @param {Mixed} val
+	 * @returns {String} 标示类型的字符串
+	 */
 	protoUtil.type = function (val) {
 	  return (typeof val === 'function' || typeof val === 'object')
 	    ? protoUtil.class2type[protoUtil.toString.call(val)] : typeof val;
 	};
-
 
 
 
@@ -600,6 +649,7 @@ var Amnhh =
 
 
 
+
 /***/ },
 /* 6 */
 /***/ function(module, exports, __webpack_require__) {
@@ -633,6 +683,27 @@ var Amnhh =
 	  }
 	  return keys;
 	};
+
+	/**
+	 * 取到所有 Object 里面的键的键值, 丢到一个数组里面返回
+	 *
+	 * @param {Object} obj
+	 * @returns {Array} 返回 obj 里所有键的键值组成的数组
+	 */
+	protoObj.values = function (obj) {
+	  if (!proto.util.isObject(obj)) return;
+
+	  var keys = protoObj.keys(obj);
+	  var len = keys.length;
+	  var ret = Array(len);
+
+	  for (var i = 0; i < len; i ++) {
+	    ret[i] = obj[keys[i]]
+	  }
+	  return ret;
+	};
+
+
 
 /***/ },
 /* 7 */
@@ -712,35 +783,6 @@ var Amnhh =
 
 /***/ },
 /* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * Author : anning
-	 * Date : 17/1/13
-	 * Mail : amnhhlod@gmail.com
-	 */
-
-	var Amnhh = __webpack_require__(1);
-
-	__webpack_require__(4);
-	__webpack_require__(3);
-	__webpack_require__(5);
-	__webpack_require__(6);
-	__webpack_require__(7);
-	__webpack_require__(9);
-
-
-	/**
-	 * 现在生成的其实只是 Amnhh.fn.init 的实例, 而不是 Amnhh 的实例
-	 * 所以我们需要的就是, 把当前的构造函数的 prototype 指向 Amnhh 的 protoype
-	 */
-	Amnhh.fn.init.prototype = Amnhh.fn;
-	// console.log(Amnhh.mix)
-
-	module.exports = Amnhh;
-
-/***/ },
-/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -990,6 +1032,151 @@ var Amnhh =
 	    });
 	  };
 	}
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Author : anning
+	 * Date : 17/1/16
+	 * Mail : amnhhlod@gmail.com
+	 */
+
+	/**
+	 * data 模块
+	 *
+	 * 预期只做
+	 * .data(name), .data(name, value), .data(options{name1 : vlaue, name2 : value...})
+	 * .removeData(name), .removeData(options[name1, name2, name3])...
+	 */
+
+	var Amnhh = __webpack_require__(1);
+	__webpack_require__(3);
+	__webpack_require__(4);
+	__webpack_require__(6);
+
+	var proto = Amnhh.fn;
+
+	proto.data = function () {
+	  var self = this;
+	  var options = arguments[0];
+	  if (proto.util.isObject(options)) {
+	    var keys = proto.object.keys(options);
+	    keys.map(function (val) {
+	      // 这里用 keys 调用的话, this 的指向会有问题
+	      // 所以用 call 而没有直接使用 proto.data(val, options[val])
+	      proto.data.call(self, String(val), String(options[val]));
+	    });
+	    return;
+	  }
+	  var name = arguments[0];
+	  var value = arguments[1];
+	  // 是只有一个参数, 则为获取属性的值
+	  if (value === undefined) {
+	    return this.attr('data-' + String(name));
+	  }
+	  // 两个参数, 则设置属性
+	  this.attr('data-' + name, String(value));
+	};
+
+	proto.removeData = function () {
+	  var self = this;
+	  var options = arguments[0];
+	  var ret;
+	  // 是个 array 的话, 代表要批量搞
+	  if (proto.util.isArray(options)) {
+	    options.map(function (val) {
+	      proto.removeData.call(self, val);
+	    });
+	  }
+	  var name = arguments[0];
+	  this.removeAttr('data-' + name);
+	};
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Author : anning
+	 * Date : 17/1/13
+	 * Mail : amnhhlod@gmail.com
+	 */
+
+	var Amnhh = __webpack_require__(1);
+
+	__webpack_require__(4);
+	__webpack_require__(3);
+	__webpack_require__(5);
+	__webpack_require__(6);
+	__webpack_require__(7);
+	__webpack_require__(8);
+	__webpack_require__(9);
+	__webpack_require__(11);
+
+
+	/**
+	 * 现在生成的其实只是 Amnhh.fn.init 的实例, 而不是 Amnhh 的实例
+	 * 所以我们需要的就是, 把当前的构造函数的 prototype 指向 Amnhh 的 protoype
+	 */
+	Amnhh.fn.init.prototype = Amnhh.fn;
+	// console.log(Amnhh.mix)
+
+	module.exports = Amnhh;
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * Author : anning
+	 * Date : 17/1/16
+	 * Mail : amnhhlod@gmail.com
+	 */
+
+	/**
+	 * 对 url 的一些方法的封装
+	 */
+
+	var Amnhh = __webpack_require__(1);
+
+
+	var proto = Amnhh.fn;
+	var protoUrl = proto.url = {};
+
+	/**
+	 * 对当前 url 的 参数进行处理, 返回 [[key1, val1], [key2, val2]] 的形式
+	 */
+	protoUrl.getSearchParams = function () {
+	  var params = location.search.slice(1);
+	  return params === ''
+	    ? ''
+	    : (function () {
+	      var ret = [];
+	      var paramList = params.split('&');
+	      paramList.map(function (val, idx) {
+	        val = val.split('=');
+	        ret[idx] = [val[0], val[1]];
+	      });
+	      return ret;
+	    })();
+	};
+
+	/**
+	 * 得到当前 url 里面的 name 字段的值
+	 *
+	 * @param {String} name 值
+	 * @return {String} name 对应的 value 的值
+	 */
+	protoUrl.getParamValue = function (name) {
+	  var paramsArr = protoUrl.getSearchParams();
+	  var ret;
+	  paramsArr.some(function (val) {
+	    return val[0] === name && (ret = val[1])
+	  });
+	  return ret || '';
+	};
 
 /***/ }
 /******/ ]);
